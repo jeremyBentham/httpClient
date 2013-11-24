@@ -59,8 +59,10 @@ public class ClientWithResponseHandler {
                 public String handleResponse(
                         final HttpResponse response) throws ClientProtocolException, IOException {
                     int status = response.getStatusLine().getStatusCode();
+                    System.out.println(response.getStatusLine());
                     if (status >= 200 && status < 300) {
                         HttpEntity entity = response.getEntity();
+                        
                         return entity != null ? EntityUtils.toString(entity) : null;
                     } else {
                         throw new ClientProtocolException("Unexpected response status: " + status);
