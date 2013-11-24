@@ -62,7 +62,7 @@ public class ClientWithResponseHandler {
                         HttpEntity entity = response.getEntity();
                         return entity != null ? EntityUtils.toString(entity) : null;
                     } else {
-                        throw new ClientProtocolException("Unexpected response status: " + status);
+                        throw new ClientProtocolException("Une2xpected response status: " + status);
                     }
                 }
 
