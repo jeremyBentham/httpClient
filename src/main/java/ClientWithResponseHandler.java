@@ -49,6 +49,8 @@ public class ClientWithResponseHandler {
             HttpGet httpget = new HttpGet("http://www.google.com/");
 
             System.out.println("executing request " + httpget.getURI());
+            
+            
 
             // Create a custom response handler
             ResponseHandler<String> responseHandler = new ResponseHandler<String>() {
