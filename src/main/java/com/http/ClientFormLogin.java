@@ -26,21 +26,25 @@
  */
 package com.http;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.cookie.Cookie;
-import org.apache.http.cookie.SetCookie;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
@@ -51,23 +55,57 @@ import org.apache.http.util.EntityUtils;
 public class ClientFormLogin {
 
     public static void main(String[] args) throws Exception {
+    	
+    	 ResponseHandler<String> responseHandler = new ResponseHandler<String>() {
+
+             public String handleResponse(
+                     final HttpResponse response) throws ClientProtocolException, IOException {
+                 int status = response.getStatusLine().getStatusCode();
+                 System.out.println(response.getStatusLine());
+                 if (status >= 200 && status < 303) {
+                     HttpEntity entity = response.getEntity();
+                     
+                     return entity != null ? EntityUtils.toString(entity) : null;
+                 } else {
+                     throw new ClientProtocolException("Unexpected response status: " + status);
+                 }
+             }
+
+         };
+    	
+    	
+    	
+    	
         BasicCookieStore cookieStore = new BasicCookieStore();
+        
+        BasicClientCookie cookieJSESSIONID = new BasicClientCookie("JSESSIONID", "3FD927DC6911B719E4492E7473897FBA");
+        cookieJSESSIONID.setVersion(0);
+        cookieJSESSIONID.setDomain("218.75.79.230");
+        cookieJSESSIONID.setPath("/");
+        System.out.println("Initial set of cookies:");
+        cookieStore.addCookie(cookieJSESSIONID);
+        
+        
+        
         CloseableHttpClient httpclient = HttpClients.custom().setDefaultCookieStore(cookieStore).build();
         try {
-            HttpGet httpget = new HttpGet("http://localhost:8081/cring/jsp/user/user_index.jsp");
+            HttpGet httpget = new HttpGet("http://218.75.79.230:8085/cring/jsp/user/user_index.jsp");
 
             CloseableHttpResponse response1 = httpclient.execute(httpget);
+            String responseBodyBefore = httpclient.execute(httpget, responseHandler);
+            System.out.println("-------------Before---------------------------");
+            System.out.println(responseBodyBefore);
+            System.out.println("-------------Before---------------------------");
             try {
                 HttpEntity entity = response1.getEntity();
 
                 System.out.println("Login form get: " + response1.getStatusLine());
                 EntityUtils.consume(entity);
-
-                System.out.println("Initial set of cookies:");
+              
                 List<Cookie> cookies = cookieStore.getCookies();
                 if (cookies.isEmpty()) {
                     System.out.println("None");
-                } else {
+                } else { 
                     for (int i = 0; i < cookies.size(); i++) {
                         System.out.println("- " + cookies.get(i).toString());
                     }
@@ -75,20 +113,29 @@ public class ClientFormLogin {
             } finally {
                 response1.close();
             }
-            HttpPost httpost = new HttpPost("http://localhost:8081/cring/jsp/user/userLogin.do?method=login");
+            HttpPost httpost = new HttpPost("http://218.75.79.230:8085/cring/jsp/user/userLogin.do?method=login");
             List <NameValuePair> nvps = new ArrayList <NameValuePair>();
             nvps.add(new BasicNameValuePair("username","057185581120"));
             nvps.add(new BasicNameValuePair("password","111111"));
-            nvps.add(new BasicNameValuePair("remeberMe","save"));
-
+            nvps.add(new BasicNameValuePair("rememberMe","save"));
+            BasicClientCookie cookie = new BasicClientCookie("name", "118300");
+            System.out.println("Initial set of cookies:");
+            cookieStore.addCookie(cookie);
+            
+            
             httpost.setEntity(new UrlEncodedFormEntity(nvps, Consts.UTF_8));
           //  HttpGet httpget2 = new HttpGet("http://localhost:8081/cring/jsp/user/user_index.jsp");
-            CloseableHttpResponse response2 = httpclient.execute(httpost);
+         
+            // Create a custom response handler
+           
+            
+            String response2 = httpclient.execute(httpost,responseHandler);
+          //  httpclient.
             try {
-                HttpEntity entity = response2.getEntity();
+               // HttpEntity entity = response2.getEntity();
 
-                System.out.println("Login form get: " + response2.getStatusLine());
-                EntityUtils.consume(entity);
+                System.out.println("----------------\n " + response2);
+              //  EntityUtils.consume(entity);
 
                 System.out.println("Post logon cookies:");
                 List<Cookie> cookies = cookieStore.getCookies();
@@ -99,8 +146,22 @@ public class ClientFormLogin {
                         System.out.println("- " + cookies.get(i).toString());
                     }
                 }
+                
+                
+                
+                HttpGet httpgetAfter = new HttpGet("http://218.75.79.230:8085/cring/jsp/user/user_index.jsp");
+
+                String responseBodyAfter = httpclient.execute(httpget, responseHandler);
+                System.out.println("----------------------------------------");
+               // System.out.println(responseBodyAfter);
+                System.out.println("----------------------------------------");
+                
+                
+                
+                
+                
             } finally {
-                response2.close();
+                //response2.close();
             }
         } finally {
             httpclient.close();
