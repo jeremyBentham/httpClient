@@ -24,7 +24,7 @@
  * <http://www.apache.org/>.
  *
  */
-package com.http;
+package com.http.my;
 
 import java.io.IOException;
 import java.util.ArrayList;
