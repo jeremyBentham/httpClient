@@ -39,7 +39,6 @@ import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -86,17 +85,54 @@ public class ClientFormLogin {
         
         
         CloseableHttpClient httpclient = HttpClients.custom().setDefaultCookieStore(cookieStore).build();
+       // HttpProtocolParams.setUserAgent(httpclient.getParams(), "Mozilla/5.0 (Windows; U; MSIE 6.0; Windows NT 5.1; SV1; .NET CLR 2.0.50727)");
+
+        
         try {
          
-            HttpPost httpost = new HttpPost("http://localhost:8081/cring/jsp/user/userLogin.do?method=login");
+           // HttpPost httpost = new HttpPost("http://localhost:8081/cring/jsp/user/userLogin.do?method=login");
+            HttpPost loginpost = new HttpPost("http://134.96.41.47/ecommunications_chs/start.swe");
+            //HttpGet loginGet = new HttpGet("http://134.96.41.47/ecommunications_chs/start.swe");
+           // HttpGet loginGet = new HttpGet("http://www.baidu.com");
             List <NameValuePair> nvps = new ArrayList <NameValuePair>();
-            nvps.add(new BasicNameValuePair("username","057185581120"));
-            nvps.add(new BasicNameValuePair("password","222222"));
-            nvps.add(new BasicNameValuePair("rememberMe","save"));
-            httpost.setEntity(new UrlEncodedFormEntity(nvps, Consts.UTF_8));
+            nvps.add(new BasicNameValuePair("SWEUserName","nili"));
+            nvps.add(new BasicNameValuePair("SWEPassword","nili7788"));
+            nvps.add(new BasicNameValuePair("SWEFo","SWEEntryForm"));
+            nvps.add(new BasicNameValuePair("SWENeedContext","false"));
+            nvps.add(new BasicNameValuePair("SWECmd","ExecuteLogin"));
+            nvps.add(new BasicNameValuePair("W","t"));
+            nvps.add(new BasicNameValuePair("SWEC","0"));
+            nvps.add(new BasicNameValuePair("SWEBID","-1"));
+            nvps.add(new BasicNameValuePair("SWETS","1385712482625"));
             
-           httpclient.execute(httpost);
-            try {
+            /**
+             *  SWEUserName:111111
+				SWEPassword:222222
+				SWEFo:SWEEntryForm
+				SWENeedContext:false
+				SWECmd:ExecuteLogin
+				W:t
+				SWESPNR:
+				SWESPNH:
+				SWEH:
+				SWEC:0
+				SWEW:
+				SWEBID:-1
+				SWETS:1385712482625
+				SWEWN:
+             */
+            loginpost.setEntity(new UrlEncodedFormEntity(nvps, Consts.UTF_8));
+//            CloseableHttpResponse response =  httpclient.execute(loginpost);
+           // HttpEntity httpEntity =  response.getEntity();
+            CloseableHttpResponse responseGet =  httpclient.execute(loginpost);
+            HttpEntity httpEntityGet =  responseGet.getEntity();
+            System.out.println("statusLine: "+responseGet.getStatusLine());
+            System.out.println("ContentType: "+httpEntityGet.getContentType());
+            System.out.println("ContentLength: "+httpEntityGet.getContentLength());
+          
+          //  httpEntityGet.get
+            System.out.println("loginGet: "+EntityUtils.toString(httpEntityGet));
+           /* try {
 
                 System.out.println("Post logon cookies:");
                 List<Cookie> cookies = cookieStore.getCookies();
@@ -122,7 +158,7 @@ public class ClientFormLogin {
                 
             } finally {
                 //response2.close();
-            }
+            }*/
         } finally {
             httpclient.close();
         }
